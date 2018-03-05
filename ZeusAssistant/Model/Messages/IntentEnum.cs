@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZeusAssistant.Model
+namespace ZeusAssistant.Model.Messages
 {
-    class Speech
+    public enum IntentEnum
     {
+        Weather,
+        Time,
+        Alarm,
+        Note,
     }
 }

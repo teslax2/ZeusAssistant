@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace ZeusAssistant.Model
 {
-    class MicrosoftSpeech : ISpeech
+    class SpeechMicrosoft
     {
         public event EventHandler<string> Recognized;
         private SpeechRecognitionEngine _recognizer;
@@ -19,13 +19,13 @@ namespace ZeusAssistant.Model
         private Grammar _grammar;
         private bool _stop;
 
-        public MicrosoftSpeech()
+        public SpeechMicrosoft()
         {
             _cultureInfo = new CultureInfo("pl-PL");
             Init();
         }
 
-        public MicrosoftSpeech(CultureInfo cultureInfo)
+        public SpeechMicrosoft(CultureInfo cultureInfo)
         {
             _cultureInfo = cultureInfo;
             Init();
@@ -36,10 +36,6 @@ namespace ZeusAssistant.Model
             _recognizer = new SpeechRecognitionEngine(_cultureInfo);
             _recognizer.SetInputToDefaultAudioDevice();
             _choices = new Choices();
-            _choices.Add("Alexa");
-            _choices.Add("red");
-            _choices.Add("one");
-            _choices.Add("on");
             _choices.Add("dupa");
             _choices.Add("pimpuś");
             _grammarBuilder = new GrammarBuilder();
@@ -50,16 +46,24 @@ namespace ZeusAssistant.Model
             _recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
         }
 
-        private void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        public void OnSpeechRecognized(string message)
         {
             EventHandler<string> recognized = Recognized;
             if (recognized != null)
-                recognized(this, e.Result.Text);
+                recognized(this, message);
+        }
+
+        private void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            Stop();
             System.Diagnostics.Debug.WriteLine("Recognized! {0}: {1}",e.Result.Text, e.Result.Confidence);
+            JinglePlayer.PlaySound();
+            OnSpeechRecognized(e.Result.ToString());
         }
 
         public async Task Run()
         {
+            _stop = false;
             await Task.Run(() =>
             {
                 System.Diagnostics.Debug.WriteLine("Started!");

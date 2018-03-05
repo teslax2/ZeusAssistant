@@ -11,7 +11,7 @@
         <viewModel:ZeusMainViewModel x:Key="viewModel"/>
     </Window.Resources>
     <Grid DataContext="{StaticResource viewModel}">
-        <Button Content="Button" HorizontalAlignment="Left" Margin="107,122,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StartRecording}"/>
-
+        <Button Content="Start" HorizontalAlignment="Left" Margin="107,122,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StartRecording}"/>
+        <Button Content="Stop" HorizontalAlignment="Left" Margin="107,147,0,0" VerticalAlignment="Top" Width="75" Command="{Binding StopRecording}"/>
     </Grid>
 </Window>

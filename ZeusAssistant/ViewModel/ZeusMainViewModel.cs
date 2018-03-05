@@ -6,17 +6,25 @@ using System.Threading.Tasks;
 using ZeusAssistant.Model;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Http;
+using NLog;
 
 namespace ZeusAssistant.ViewModel
 {
     class ZeusMainViewModel:INotifyPropertyChanged
     {
-        public MicrosoftSpeech _microsoftSpeech;
-        public ApiHandler Api = new ApiHandler();
-#region buttons
-        //public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
-        public CommandBinding StartRecording { get { return new CommandBinding(() => RunTest(), () => true); } }
+        public SpeechMicrosoft MicrosoftSpeech;
+        public HttpClient HttpClient;
+        public SpeechWitAi WitAi;
+        public VoiceRecorder Recorder;
+        public Creditentials Credits;
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        #region buttons
+        public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
+        //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
         #endregion
+
         #region events
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string property)
@@ -29,42 +37,41 @@ namespace ZeusAssistant.ViewModel
 
         public ZeusMainViewModel()
         {
-            _microsoftSpeech = new MicrosoftSpeech();
+            Credits = new Creditentials();
+            Credits.Load();
+            HttpClient = new HttpClient();
+            MicrosoftSpeech = new SpeechMicrosoft();
+            MicrosoftSpeech.Recognized += _microsoftSpeech_Recognized;
+            WitAi = new SpeechWitAi(HttpClient,Credits.WitAiPath,Credits.WitAiToken);
+            Recorder = new VoiceRecorder(0.05f, 1000);
+            Recorder.DataAvailable += Recorder_DataAvailable;
+            Recorder.RecordingStopped += Recorder_RecordingStopped;
+        }
+
+        private void Recorder_RecordingStopped(object sender, EventArgs e)
+        {
+            var result = WitAi.StopPostChunked();
+            if (result != null)
+                logger.Info(result.MessageIntent.ToString());
+         }
+
+        private void _microsoftSpeech_Recognized(object sender, string e)
+        {
+            WitAi.StartPostChunked();
+            Recorder.Start();
+        }
+
+        private void Recorder_DataAvailable(object sender, VoiceRecorderEventArgs e)
+        {
+            WitAi.SendPostChunked(e.Data);
         }
 
         #region functions
         public async Task RunSpeechRecognition()
         {
-            //await _microsoftSpeech.Run();
-            try
-            {
-                var file = File.ReadAllBytes(@"C:\Users\wiesi_000\Desktop\sample.mp3");
-                var size = file.Length;
-                int i = 0;
-                byte[] dupa = new byte[5120];
-                int bufferSize = 5120;
-                while (bufferSize>0)
-                {
-                    Buffer.BlockCopy(file, i, dupa, 0, bufferSize);
-                    i += bufferSize;
-                    if (i + bufferSize > size)
-                        bufferSize = size - i;
-                    var response = await Api.Post(dupa);
-                    System.Diagnostics.Debug.WriteLine(response);
-                }
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-            }
-
+            await MicrosoftSpeech.Run();
         }
 
-        public void RunTest()
-        {
-            var response = Api.PostChunked2();
-            System.Diagnostics.Debug.WriteLine(response);
-        }
-#endregion
+        #endregion
     }
 }

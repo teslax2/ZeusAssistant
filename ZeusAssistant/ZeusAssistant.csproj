@@ -78,8 +78,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.4\lib\net35\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Lame, Version=1.0.5.22475, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.Lame.1.0.7\lib\net20\NAudio.Lame.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.13\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -109,17 +118,28 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\ApiHandler.cs" />
+    <Compile Include="Model\Creditentials.cs" />
+    <Compile Include="Model\JinglePlayer.cs" />
+    <Compile Include="Model\Messages\IMessage.cs" />
+    <Compile Include="Model\Messages\IntentEnum.cs" />
+    <Compile Include="Model\Messages\MessageAlarm.cs" />
+    <Compile Include="Model\Messages\MessageIntent.cs" />
+    <Compile Include="Model\Messages\MessageNote.cs" />
+    <Compile Include="Model\Messages\MessageTime.cs" />
+    <Compile Include="Model\Messages\MessageWeather.cs" />
+    <Compile Include="Model\ResponseParser.cs" />
+    <Compile Include="Model\SpeechWitAi.cs" />
     <Compile Include="Model\CommandBinding.cs" />
-    <Compile Include="Model\MicrosoftSpeech.cs" />
+    <Compile Include="Model\SpeechMicrosoft.cs" />
+    <Compile Include="Model\SilenceDetectedEventArgs.cs" />
+    <Compile Include="Model\VoiceRecorder.cs" />
+    <Compile Include="Model\VoiceRecorderEventArgs.cs" />
     <Compile Include="ViewModel\ZeusMainViewModel.cs" />
     <Compile Include="View\ZeusMain.xaml.cs">
       <DependentUpon>ZeusMain.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\ISpeech.cs" />
-    <Compile Include="Model\Speech.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -137,6 +157,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -146,7 +169,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="libmp3lame.32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libmp3lame.64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Page Include="View\ZeusMain.xaml">
       <SubType>Designer</SubType>
