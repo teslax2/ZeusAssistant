@@ -14,114 +14,68 @@ namespace ZeusAssistant.Model
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static IMessage Parse (string content)
+        public static Message Parse (string content)
         {
 
-            var parsedContent = JObject.Parse(content);
+            dynamic parsedContent = JObject.Parse(content);
             var _text = (string)parsedContent["_text"];
-            MessageIntent _createdIntent = null;
-            string _createdLocation = null;
-            string _createdTime = null;
+            Message Message = null;
+            string Location = string.Empty;
+            DateTime Time = DateTime.Now;
+            string Intent = string.Empty;
+            double Confidence = 0;
+            double LocationConfidence = 0;
+            double TimeConfidence = 0;
+
             try
             {
-                var intent = (string)parsedContent["entities"]["intent"][0]["value"];
-                var intentConfidence = (string)parsedContent["entities"]["intent"][0]["confidence"];
-                _createdIntent = CreateIntent(intent, intentConfidence);
-            }
-            catch (Exception)
-            {}
-            try
-            {
-                var location = (string)parsedContent["entities"]["location"][0]["value"];
-                var locationConfidence = (string)parsedContent["entities"]["location"][0]["confidence"];
-                _createdLocation = CreateLocation(location, locationConfidence);
-            }
-            catch (Exception)
-            {}
-            try
-            {
-                var time = (string)parsedContent["entities"]["datetime"][0]["value"];
-                var timeConfidence = (string)parsedContent["entities"]["datetime"][0]["confidence"];
-                _createdTime = CreateTime(time, timeConfidence);
-            }
-            catch (Exception)
-            {}
+                if (parsedContent.entities.intent[0] != null && parsedContent.entities.intent[0] != null)
+                {
+                    Intent = (string)parsedContent.entities.intent[0].value;
+                    var text = (string)parsedContent.entities.intent[0].confidence;
+                    double.TryParse(text.Replace(',','.'),NumberStyles.Any,CultureInfo.InvariantCulture, out Confidence);
+                }        
+                if (parsedContent.entities.location!= null && parsedContent.entities.location != null)
+                {
+                    Location = (string)parsedContent.entities.location[0].value;
+                    var text = (string)parsedContent.entities.location[0].confidence;
+                    double.TryParse(text.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out LocationConfidence);
+                }
+                if (parsedContent.entities.datetime != null && parsedContent.entities.datetime != null)
+                {
+                    DateTime.TryParse((string)parsedContent.entities.datetime[0].value, out Time);
+                    var text = (string)parsedContent.entities.datetime[0].confidence;
+                    double.TryParse(text.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out TimeConfidence);
+                }
 
-
-            if (_createdIntent != null)
-            {
-                var createdMessage = new MessageWeather(content);
-                createdMessage.Text = _text;
-                if (_createdLocation != null)
-                    createdMessage.Location = _createdLocation;
-                if (_createdTime != null)
-                    createdMessage.When = _createdTime;
-                var messageString = createdMessage.ToString();
-                logger.Info(createdMessage.ToString());
-                return createdMessage;
+                Message = CreateMessage(Intent, Confidence, Location, LocationConfidence, Time, TimeConfidence);
+                return Message;
             }
-            return null;               
- 
-        }
-
-        private static IMessage CreateMessage(MessageIntent intent, string content)
-        {
-            switch (intent.Intent)
+            catch (Exception ex)
             {
-                case IntentEnum.Weather:
-                    return new MessageWeather(content,intent.Confidence);
-                case IntentEnum.Time:
-                    return new MessageTime(content, intent.Confidence);
-                case IntentEnum.Alarm:
-                    return new MessageAlarm(content, intent.Confidence);
-                case IntentEnum.Note:
-                    return new MessageNote(content, intent.Confidence);
-                default:
-                    return new MessageNote(content, intent.Confidence);
-            }
-        }
-
-        private static MessageIntent CreateIntent(string intent, string confidence)
-        {
-            if (string.IsNullOrEmpty(intent) || string.IsNullOrEmpty(confidence))
+                logger.Error(ex, "Parsing error");
                 return null;
-            var _confidence = Single.Parse(confidence, new CultureInfo("en-US"));
-            if (_confidence < 0.85)
+            }
+        }
+
+        private static Message CreateMessage(string intent, double confidence, string location, double locationConfidence, DateTime time, double timeConfidence)
+        {
+            if (string.IsNullOrEmpty(intent) || confidence < 0.85)
                 return null;
 
             switch (intent)
             {
                 case "weather":
-                    return new MessageIntent(IntentEnum.Weather, _confidence);
+                    return new MessageWeather(IntentEnum.Weather, confidence, location,locationConfidence,time,timeConfidence);
                 case "time":
-                    return new MessageIntent(IntentEnum.Time, _confidence);
+                    return new MessageTime(IntentEnum.Time, confidence);
                 case "alarm":
-                    return new MessageIntent(IntentEnum.Alarm, _confidence);
+                    return new MessageAlarm(IntentEnum.Alarm, confidence,time,timeConfidence);
                 case "note":
-                    return new MessageIntent(IntentEnum.Note, _confidence);
+                    return new MessageNote(IntentEnum.Note, confidence);
                 default:
                     return null;
             }
-        }
-
-        private static string CreateLocation(string location, string confidence)
-        {
-            if (string.IsNullOrEmpty(location) || string.IsNullOrEmpty(confidence))
-                return null;
-            var _confidence = Single.Parse(confidence, new CultureInfo("en-US"));
-            if (_confidence < 0.85)
-                return null;
-            return location;
-        }
-
-        private static string CreateTime(string time, string confidence)
-        {
-            if (string.IsNullOrEmpty(time) || string.IsNullOrEmpty(confidence))
-                return null;
-            var _confidence = Single.Parse(confidence, new CultureInfo("en-US"));
-            if (_confidence < 0.85)
-                return null;
-            return time;
         }
     }
 }

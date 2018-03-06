@@ -6,17 +6,10 @@ using System.Threading.Tasks;
 
 namespace ZeusAssistant.Model.Messages
 {
-    class MessageNote : IMessage
+    class MessageNote : Message
     {
-        public MessageIntent MessageIntent { get; set; }
-        public string RawMessage { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
-        public string Text { get; set; }
-
-        public MessageNote(string content, double confidence)
+        public MessageNote(IntentEnum intent, double confidence) : base(intent, confidence)
         {
-            MessageIntent = new MessageIntent(IntentEnum.Note, confidence);
-            RawMessage = content;
         }
     }
 }

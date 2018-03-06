@@ -32,12 +32,11 @@ namespace ZeusAssistant.Model
             _token = token;
         }
 
-        public async Task<IMessage> PostASync(byte[] data)
+        public async Task<Message> PostASync(byte[] data)
         {
             var before = DateTime.Now;
             _httpClient.DefaultRequestHeaders.Clear();
             ByteArrayContent sound = new ByteArrayContent(data);
-            sound.Headers.Clear();
             sound.Headers.ContentType = MediaTypeHeaderValue.Parse("audio/mpeg3");
             _httpClient.DefaultRequestHeaders.Add("Transfer-encoding", "chunked");
             _httpClient.DefaultRequestHeaders.Add("Authorization", _token);
@@ -94,7 +93,7 @@ namespace ZeusAssistant.Model
             }
         }
 
-        public IMessage StopPostChunked()
+        public Message StopPostChunked()
         {
             try
             {
@@ -118,7 +117,7 @@ namespace ZeusAssistant.Model
                 return null;
             }
         }
-        public async Task<IMessage> StopPostChunkedAsync()
+        public async Task<Message> StopPostChunkedAsync()
         {
             try
             {

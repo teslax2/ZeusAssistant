@@ -6,17 +6,27 @@ using System.Threading.Tasks;
 
 namespace ZeusAssistant.Model.Messages
 {
-    public class MessageAlarm : IMessage
+    public class MessageAlarm : Message
     {
-        public MessageIntent MessageIntent { get; set; }
-        public string RawMessage { get; set; }
-        public DateTime Created { get; set; } = DateTime.Now;
-        public string Text { get; set; }
+        public DateTime Time { get; set; }
+        public double TimeConfidence { get; set; }
+        public int DaysEnabled { get; set; }
 
-        public MessageAlarm(string content, double confidence)
+        public MessageAlarm(IntentEnum intent, double confidence) : base(intent, confidence)
         {
-            MessageIntent = new MessageIntent(IntentEnum.Alarm, confidence);
-            RawMessage = content;
+        }
+        public MessageAlarm(IntentEnum intent, double confidence,DateTime time, double timeConfidence, int days, string message) : this(intent, confidence)
+        {
+            Time = time;
+            TimeConfidence = timeConfidence;
+            DaysEnabled = days;
+            Note = message;
+        }
+
+        public MessageAlarm(IntentEnum intent, double confidence, DateTime time, double timeConfidence) : this(intent, confidence)
+        {
+            Time = time;
+            TimeConfidence = timeConfidence;
         }
     }
 }

@@ -6,24 +6,22 @@ using System.Threading.Tasks;
 
 namespace ZeusAssistant.Model.Messages
 {
-    class MessageWeather : IMessage
+    class MessageWeather : Message
     {
-        public MessageIntent MessageIntent { get; set; }
-        public string RawMessage { get; set; }
-        public DateTime Created { get; set; }
         public string Location { get; set; } = string.Empty;
-        public string When { get; set; } = string.Empty;
-        public string Text { get; set; }
+        public double LocationConfidence { get; set; }
+        public DateTime When { get; set; } = DateTime.Now;
+        public double WhenConfidence { get; set; }
 
-        public MessageWeather(string content, double confidence)
+        public MessageWeather(IntentEnum intent, double confidence) : base(intent, confidence)
         {
-            MessageIntent = new MessageIntent(IntentEnum.Weather, 1);
-            RawMessage = content;
-            Created = DateTime.Now;
         }
-        public override string ToString()
+        public MessageWeather(IntentEnum intent, double confidence, string location, double locationConfidence, DateTime when, double whenConfidence) : this(intent,confidence)
         {
-            return MessageIntent.ToString() + Environment.NewLine + Location + Environment.NewLine + When + Environment.NewLine + Text;
+            Location = location;
+            LocationConfidence = locationConfidence;
+            When = when;
+            WhenConfidence = whenConfidence;
         }
     }
 }

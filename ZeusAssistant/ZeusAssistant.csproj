@@ -120,10 +120,9 @@
     </Compile>
     <Compile Include="Model\Creditentials.cs" />
     <Compile Include="Model\JinglePlayer.cs" />
-    <Compile Include="Model\Messages\IMessage.cs" />
+    <Compile Include="Model\Messages\Message.cs" />
     <Compile Include="Model\Messages\IntentEnum.cs" />
     <Compile Include="Model\Messages\MessageAlarm.cs" />
-    <Compile Include="Model\Messages\MessageIntent.cs" />
     <Compile Include="Model\Messages\MessageNote.cs" />
     <Compile Include="Model\Messages\MessageTime.cs" />
     <Compile Include="Model\Messages\MessageWeather.cs" />
