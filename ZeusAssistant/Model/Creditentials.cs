@@ -8,24 +8,22 @@ using Newtonsoft.Json;
 
 namespace ZeusAssistant.Model
 {
-    class Creditentials
+    public class Creditentials
     {
-        public string WitAiPath { get; set; } = string.Empty;
-        public string WitAiToken { get; set; } = string.Empty;
+        public List<Credit> Credits { get; set; }
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public Creditentials()
         {
+            Credits = new List<Credit>() { new Credit() { Provider = ApiProvider.WitAi, Path = "dupa", Token = "dupa" } };
         }
 
         public void Load()
         {
             try
             {
-                var serializedObject = File.ReadAllText("credits.xxx");
+                var serializedObject = File.ReadAllText("Apicredits.xxx");
                 var creds = JsonConvert.DeserializeObject<Creditentials>(serializedObject);
-                WitAiPath = creds.WitAiPath;
-                WitAiToken = creds.WitAiToken;
             }
             catch (Exception ex)
             {
@@ -45,5 +43,18 @@ namespace ZeusAssistant.Model
                 logger.Error(ex, "Couldnt save creditentials");
             }
         }
+    }
+
+    public class Credit
+    {
+        public ApiProvider Provider { get; set; }
+        public string Path { get; set; }
+        public string Token { get; set; }
+    }
+
+    public enum ApiProvider
+    {
+        WitAi,
+        OpenWeatherMap,
     }
 }

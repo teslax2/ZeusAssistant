@@ -118,6 +118,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\WeatherApi.cs" />
     <Compile Include="Model\Creditentials.cs" />
     <Compile Include="Model\JinglePlayer.cs" />
     <Compile Include="Model\Messages\Message.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Model\SilenceDetectedEventArgs.cs" />
     <Compile Include="Model\VoiceRecorder.cs" />
     <Compile Include="Model\VoiceRecorderEventArgs.cs" />
+    <Compile Include="Model\WeatherResponse.cs" />
     <Compile Include="ViewModel\ZeusMainViewModel.cs" />
     <Compile Include="View\ZeusMain.xaml.cs">
       <DependentUpon>ZeusMain.xaml</DependentUpon>

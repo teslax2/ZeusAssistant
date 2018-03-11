@@ -10,19 +10,28 @@ namespace ZeusAssistant.Model
 {
     public static class JinglePlayer
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public static void PlaySound()
         {
-            var playTask = new System.Threading.Tasks.Task(() =>
+            try
             {
-                using (var reader = new WaveFileReader("apert.wav"))
-                using (var waveOut = new WaveOutEvent())
+                var playTaskAsync = new System.Threading.Tasks.Task(async () =>
                 {
-                    waveOut.Init(reader);
-                    waveOut.Play();
-                    System.Threading.Thread.Sleep(1000);
-                }
-            });
-            playTask.Start();
+                    using (var reader = new WaveFileReader("apert.wav"))
+                    using (var waveOut = new WaveOutEvent())
+                    {
+                        waveOut.Init(reader);
+                        waveOut.Play();
+                    }
+                    await Task.Delay(500);
+                });
+                playTaskAsync.Start();
+            }
+            catch (Exception ex)
+            {
+
+                logger.Error(ex, "Error is playing Jingle");
+            }
         }
     }
 }

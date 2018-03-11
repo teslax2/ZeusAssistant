@@ -17,7 +17,7 @@ namespace ZeusAssistant.ViewModel
         public HttpClient HttpClient;
         public SpeechWitAi WitAi;
         public VoiceRecorder Recorder;
-        public Creditentials Credits;
+        public Creditentials ApiCredits;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region buttons
@@ -37,15 +37,25 @@ namespace ZeusAssistant.ViewModel
 
         public ZeusMainViewModel()
         {
-            Credits = new Creditentials();
-            Credits.Load();
-            HttpClient = new HttpClient();
-            MicrosoftSpeech = new SpeechMicrosoft();
-            MicrosoftSpeech.Recognized += _microsoftSpeech_Recognized;
-            WitAi = new SpeechWitAi(HttpClient,Credits.WitAiPath,Credits.WitAiToken);
-            Recorder = new VoiceRecorder(0.05f, 1000);
-            Recorder.DataAvailable += Recorder_DataAvailable;
-            Recorder.RecordingStopped += Recorder_RecordingStopped;
+            try
+            {
+                ApiCredits = new Creditentials();
+                ApiCredits.Load();
+                HttpClient = new HttpClient();
+                MicrosoftSpeech = new SpeechMicrosoft();
+                MicrosoftSpeech.Recognized += _microsoftSpeech_Recognized;
+                WitAi = new SpeechWitAi(HttpClient,
+                    ApiCredits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
+                    ApiCredits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
+                Recorder = new VoiceRecorder(0.05f, 1000);
+                Recorder.DataAvailable += Recorder_DataAvailable;
+                Recorder.RecordingStopped += Recorder_RecordingStopped;
+            }
+            catch (Exception ex)
+            {
+
+                logger.Error(ex, "Failed to create ZeusMainViewModel");
+            }
         }
 
         private void Recorder_RecordingStopped(object sender, EventArgs e)
