@@ -28,7 +28,7 @@ namespace ZeusAssistant.Model.Weather
             LastRefresh = new DateTime(2000, 01, 01);
         }
 
-        public async Task Get (string City)
+        private async Task GetAsync (string City)
         {
             if (TimeSinceLastRefresh.Hours < 1)
                 return;
@@ -46,15 +46,44 @@ namespace ZeusAssistant.Model.Weather
                 logger.Error(ex, "Failed to get weather");
             }
         }
-
-        public async Task GetWeather (string City, DateTime date)
+        /// <summary>
+        /// Returns weather forecast for choosen city and time
+        /// </summary>
+        /// <param name="City"></param>
+        /// <param name="date"></param>
+        /// <returns>"{0} będą {1}, temperatura {2}, wilgotność {3}, zachmurzenie {4} procent"</returns>
+        public async Task<string> GetForecastAsync (string City, DateTime date)
         {
-            await Get(City);
+            await GetAsync(City);
 
             if (Weather == null)
-                return;
+                return "";
+            int hour = 0;
+            if (date.Hour == 0) hour = 12;
+            else hour = date.Hour;
 
-            var forecast = Weather.Forecast.Where(x=>x.DtTxt.)
+            var forecast = Weather.Forecast.Where(x => x.DtTxt.Day == date.Day && x.DtTxt.Hour >= hour).FirstOrDefault();
+            var forecastString = string.Format("{0} będzie {1}, temperatura {2}, wilgotność {3}, zachmurzenie {4} procent", 
+                GetDay(date), forecast.Weather[0].Description, forecast.Main.Temp, forecast.Main.Humidity, forecast.Clouds.All);
+            logger.Info(forecastString);
+            return forecastString;
+        }
+
+        private string GetDay(DateTimeOffset date)
+        {
+            var today = DateTimeOffset.Now;
+            var timeSpan = date.Day - today.Day;
+            switch (timeSpan)
+            {
+                case 0:
+                    return "dzisiaj o " + date.Hour.ToString();
+                case 1:
+                    return "jutro";
+                case 2:
+                    return "pojutrze";
+                default:
+                    return "za " + timeSpan + " dni";
+            }
         }
     }
 }

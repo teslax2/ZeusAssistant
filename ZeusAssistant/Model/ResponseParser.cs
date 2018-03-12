@@ -21,7 +21,7 @@ namespace ZeusAssistant.Model
             var _text = (string)parsedContent["_text"];
             Message Message = null;
             string Location = string.Empty;
-            DateTime Time = DateTime.Now;
+            DateTimeOffset Time = DateTimeOffset.Now;
             string Intent = string.Empty;
             double Confidence = 0;
             double LocationConfidence = 0;
@@ -41,14 +41,24 @@ namespace ZeusAssistant.Model
                     var text = (string)parsedContent.entities.location[0].confidence;
                     double.TryParse(text.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out LocationConfidence);
                 }
+                else
+                {
+                    Location = "Cork";
+                    LocationConfidence = 2;
+                }
                 if (parsedContent.entities.datetime != null && parsedContent.entities.datetime != null)
                 {
-                    DateTime.TryParse((string)parsedContent.entities.datetime[0].value, out Time);
+                    Time = (DateTimeOffset) parsedContent.entities.datetime[0].value;
                     var text = (string)parsedContent.entities.datetime[0].confidence;
                     double.TryParse(text.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out TimeConfidence);
                 }
+                else
+                {
+                    Time = DateTimeOffset.Now;
+                    TimeConfidence = 2;
+                }
 
-                Message = CreateMessage(Intent, Confidence, Location, LocationConfidence, Time, TimeConfidence);
+                Message = CreateMessage(Intent, Confidence, Location, LocationConfidence, Time.DateTime, TimeConfidence);
                 return Message;
             }
             catch (Exception ex)

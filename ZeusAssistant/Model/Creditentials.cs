@@ -15,15 +15,15 @@ namespace ZeusAssistant.Model
 
         public Creditentials()
         {
-            Credits = new List<Credit>() { new Credit() { Provider = ApiProvider.WitAi, Path = "dupa", Token = "dupa" } };
         }
 
         public void Load()
         {
             try
             {
-                var serializedObject = File.ReadAllText("Apicredits.xxx");
-                var creds = JsonConvert.DeserializeObject<Creditentials>(serializedObject);
+                var serializedObject = File.ReadAllText("credits.xxx");
+                var credits = JsonConvert.DeserializeObject<Creditentials>(serializedObject);
+                this.Credits = credits.Credits;
             }
             catch (Exception ex)
             {

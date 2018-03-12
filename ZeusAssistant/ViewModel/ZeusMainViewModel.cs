@@ -8,17 +8,20 @@ using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using NLog;
+using ZeusAssistant.Model.Weather;
 
 namespace ZeusAssistant.ViewModel
 {
     class ZeusMainViewModel:INotifyPropertyChanged
     {
-        public SpeechMicrosoft MicrosoftSpeech;
-        public HttpClient HttpClient;
-        public SpeechWitAi WitAi;
-        public VoiceRecorder Recorder;
-        public Creditentials ApiCredits;
+        private SpeechMicrosoft _microsoftSpeech;
+        private SpeechWitAi _witAi;
+        private VoiceRecorder _recorder;
+        private Creditentials _credits;
+        private WeatherApi _weatherApi;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public HttpClient HttpClient { get; set; }
 
         #region buttons
         public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
@@ -39,17 +42,20 @@ namespace ZeusAssistant.ViewModel
         {
             try
             {
-                ApiCredits = new Creditentials();
-                ApiCredits.Load();
+                _credits = new Creditentials();
+                _credits.Load();
                 HttpClient = new HttpClient();
-                MicrosoftSpeech = new SpeechMicrosoft();
-                MicrosoftSpeech.Recognized += _microsoftSpeech_Recognized;
-                WitAi = new SpeechWitAi(HttpClient,
-                    ApiCredits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
-                    ApiCredits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
-                Recorder = new VoiceRecorder(0.05f, 1000);
-                Recorder.DataAvailable += Recorder_DataAvailable;
-                Recorder.RecordingStopped += Recorder_RecordingStopped;
+                _microsoftSpeech = new SpeechMicrosoft();
+                _microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
+                _witAi = new SpeechWitAi(HttpClient,
+                    _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
+                    _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
+                _recorder = new VoiceRecorder(0.05f, 1000);
+                _recorder.DataAvailable += Recorder_DataAvailable;
+                _recorder.RecordingStopped += async(s,e) => await Recorder_RecordingStopped(s,e);
+                _weatherApi = new WeatherApi(HttpClient,
+                    _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Path,
+                    _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Token);
             }
             catch (Exception ex)
             {
@@ -58,28 +64,48 @@ namespace ZeusAssistant.ViewModel
             }
         }
 
-        private void Recorder_RecordingStopped(object sender, EventArgs e)
+        private async Task Recorder_RecordingStopped(object sender, EventArgs e)
         {
-            var result = WitAi.StopPostChunked();
-            if (result != null)
-                logger.Info(result.MessageIntent.ToString());
+            var result = _witAi.StopPostChunked();
+            if (result == null)
+                return;
+            logger.Info(result.MessageIntent.ToString());
+            await DoActions(result);
          }
 
         private void _microsoftSpeech_Recognized(object sender, string e)
         {
-            WitAi.StartPostChunked();
-            Recorder.Start();
+            _witAi.StartPostChunked();
+            _recorder.Start();
         }
 
         private void Recorder_DataAvailable(object sender, VoiceRecorderEventArgs e)
         {
-            WitAi.SendPostChunked(e.Data);
+            _witAi.SendPostChunked(e.Data);
         }
 
         #region functions
         public async Task RunSpeechRecognition()
         {
-            await MicrosoftSpeech.Run();
+            await _microsoftSpeech.Run();
+        }
+
+        private async Task<string> DoActions(Model.Messages.Message action)
+        {
+            switch (action.MessageIntent)
+            {
+                case Model.Messages.IntentEnum.Weather:
+                    var weatherAction = action as Model.Messages.MessageWeather;
+                    return await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                case Model.Messages.IntentEnum.Time:
+                    return "";
+                case Model.Messages.IntentEnum.Alarm:
+                    return "";
+                case Model.Messages.IntentEnum.Note:
+                    return "";
+                default:
+                    return "";
+            }
         }
 
         #endregion
