@@ -20,7 +20,7 @@ namespace ZeusAssistant.Model.Weather
         public long Cnt { get; set; }
 
         [JsonProperty("list")]
-        public List<List> List { get; set; }
+        public List<Forecast> Forecast { get; set; }
 
         [JsonProperty("city")]
         public City City { get; set; }
@@ -53,7 +53,7 @@ namespace ZeusAssistant.Model.Weather
         public double Lon { get; set; }
     }
 
-    public partial class List
+    public partial class Forecast
     {
         [JsonProperty("dt")]
         public long Dt { get; set; }

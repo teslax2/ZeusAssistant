@@ -28,7 +28,7 @@ namespace ZeusAssistant.Model.Weather
             LastRefresh = new DateTime(2000, 01, 01);
         }
 
-        public async Task GetWeather (string City)
+        public async Task Get (string City)
         {
             if (TimeSinceLastRefresh.Hours < 1)
                 return;
@@ -47,6 +47,14 @@ namespace ZeusAssistant.Model.Weather
             }
         }
 
-        public 
+        public async Task GetWeather (string City, DateTime date)
+        {
+            await Get(City);
+
+            if (Weather == null)
+                return;
+
+            var forecast = Weather.Forecast.Where(x=>x.DtTxt.)
+        }
     }
 }
