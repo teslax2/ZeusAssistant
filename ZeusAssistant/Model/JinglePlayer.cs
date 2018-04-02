@@ -15,22 +15,22 @@ namespace ZeusAssistant.Model
         {
             try
             {
-                var playTaskAsync = new System.Threading.Tasks.Task(async () =>
+                var playTaskAsync = new System.Threading.Tasks.Task(() =>
                 {
                     using (var reader = new WaveFileReader("apert.wav"))
                     using (var waveOut = new WaveOutEvent())
                     {
                         waveOut.Init(reader);
                         waveOut.Play();
+                        System.Threading.Thread.Sleep(500);
                     }
-                    await Task.Delay(500);
                 });
                 playTaskAsync.Start();
             }
             catch (Exception ex)
             {
 
-                logger.Error(ex, "Error is playing Jingle");
+                logger.Error(ex.Message, "Error is playing Jingle");
             }
         }
     }

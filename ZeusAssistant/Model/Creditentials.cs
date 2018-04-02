@@ -27,7 +27,7 @@ namespace ZeusAssistant.Model
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Couldnt load creditentials");
+                logger.Error(ex.Message, "Couldnt load creditentials");
             }
         }
 
@@ -40,7 +40,7 @@ namespace ZeusAssistant.Model
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Couldnt save creditentials");
+                logger.Error(ex.Message, "Couldnt save creditentials");
             }
         }
     }

@@ -107,9 +107,10 @@ namespace ZeusAssistant.Model
                 response.Close();
                 stop = DateTime.Now;
                 var timeSpan = stop - start;
-                logger.Debug(timeSpan.TotalSeconds.ToString());
-                return ResponseParser.Parse(responseString);
-
+                logger.Info(timeSpan.TotalSeconds.ToString());
+                var parsedResponse = ResponseParser.Parse(responseString);
+                logger.Info(parsedResponse);
+                return parsedResponse;
             }
             catch (Exception e)
             {
@@ -131,7 +132,9 @@ namespace ZeusAssistant.Model
                 stop = DateTime.Now;
                 var timeSpan = stop-start;
                 logger.Info(timeSpan.TotalSeconds.ToString());
-                return ResponseParser.Parse(responseString);
+                var parsedResponse = ResponseParser.Parse(responseString);
+                logger.Info(parsedResponse);
+                return parsedResponse;
 
             }
             catch (Exception e)

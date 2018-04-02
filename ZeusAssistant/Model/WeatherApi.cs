@@ -27,23 +27,39 @@ namespace ZeusAssistant.Model.Weather
             _token = token;
             LastRefresh = new DateTime(2000, 01, 01);
         }
-
+        /// <summary>
+        /// Http Get Request to OpenWeatherApi
+        /// </summary>
+        /// <param name="City"></param>
+        /// <returns></returns>
         private async Task GetAsync (string City)
         {
-            if (TimeSinceLastRefresh.Hours < 1)
-                return;
             try
             {
-                var fullPath = _path + City + "&lang=pl&units=metric&APPID=" + _token;
-                _httpClient.DefaultRequestHeaders.Clear();
-                var response = await _httpClient.GetAsync(fullPath);
-                var content = await response.Content.ReadAsStringAsync();
-                Weather = JsonConvert.DeserializeObject<WeatherResponse>(content);
-                LastRefresh = DateTime.Now;
+                if (TimeSinceLastRefresh.Hours < 1 || true)
+                {
+                    if (System.IO.File.Exists("weather.tmp"))
+                    {
+                        var weatherSaved = System.IO.File.ReadAllText("weather.tmp",Encoding.UTF8);
+                        if (!string.IsNullOrEmpty(weatherSaved))
+                            Weather = JsonConvert.DeserializeObject<WeatherResponse>(weatherSaved);
+                    }
+                }
+                else
+                {
+                    var fullPath = _path + City + "&lang=pl&units=metric&APPID=" + _token;
+                    _httpClient.DefaultRequestHeaders.Clear();
+                    var response = await _httpClient.GetAsync(fullPath);
+                    var content = await response.Content.ReadAsStringAsync();
+                    System.IO.File.WriteAllText("weather.tmp", content, Encoding.UTF8);
+                    Weather = JsonConvert.DeserializeObject<WeatherResponse>(content);
+                    LastRefresh = DateTime.Now;
+                }
+                
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Failed to get weather");
+                logger.Error(ex.Message, "Failed to get weather");
             }
         }
         /// <summary>

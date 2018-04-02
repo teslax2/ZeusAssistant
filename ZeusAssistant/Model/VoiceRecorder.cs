@@ -100,9 +100,12 @@ namespace ZeusAssistant.Model
 
         private void _wave_RecordingStopped(object sender, StoppedEventArgs e)
         {
-            _wave.Dispose();
-            _lameWriter.Dispose();
             OnRecordingStopped();
+            if (_wave != null)
+                _wave.Dispose();
+            if (_lameStream != null)
+                _lameWriter.Dispose();
+
         }
 
         /// <summary>

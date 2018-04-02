@@ -24,7 +24,7 @@ namespace ZeusAssistant.ViewModel
         public HttpClient HttpClient { get; set; }
 
         #region buttons
-        public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
+        public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); } }
         //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
         #endregion
 
@@ -60,7 +60,7 @@ namespace ZeusAssistant.ViewModel
             catch (Exception ex)
             {
 
-                logger.Error(ex, "Failed to create ZeusMainViewModel");
+                logger.Error(ex.Message, "Failed to create ZeusMainViewModel");
             }
         }
 
@@ -90,21 +90,26 @@ namespace ZeusAssistant.ViewModel
             await _microsoftSpeech.Run();
         }
 
-        private async Task<string> DoActions(Model.Messages.Message action)
+        private async Task DoActions(Model.Messages.Message action)
         {
             switch (action.MessageIntent)
             {
                 case Model.Messages.IntentEnum.Weather:
                     var weatherAction = action as Model.Messages.MessageWeather;
-                    return await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                    var weatherString = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                    logger.Info(weatherString);
+                    if (!string.IsNullOrEmpty(weatherString))
+                        // _microsoftSpeech.Speak(weatherString);
+                        ;
+                    break;
                 case Model.Messages.IntentEnum.Time:
-                    return "";
+                    return;
                 case Model.Messages.IntentEnum.Alarm:
-                    return "";
+                    return;
                 case Model.Messages.IntentEnum.Note:
-                    return "";
+                    return;
                 default:
-                    return "";
+                    return;
             }
         }
 
