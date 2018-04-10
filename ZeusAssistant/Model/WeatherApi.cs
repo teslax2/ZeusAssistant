@@ -10,8 +10,6 @@ namespace ZeusAssistant.Model.Weather
 {
     public class WeatherApi
     {
-        public DateTime LastRefresh { get; set; }
-        public TimeSpan TimeSinceLastRefresh { get { return DateTime.Now - LastRefresh; } }
         private HttpClient _httpClient;
         public WeatherResponse Weather { get; set; }
         private string _path;
@@ -25,21 +23,18 @@ namespace ZeusAssistant.Model.Weather
             _httpClient = httpClient;
             _path = path;
             _token = token;
-            LastRefresh = new DateTime(2000, 01, 01);
         }
 
         private async Task GetAsync (string City)
         {
-            if (TimeSinceLastRefresh.Hours < 1)
-                return;
             try
             {
                 var fullPath = _path + City + "&lang=pl&units=metric&APPID=" + _token;
                 _httpClient.DefaultRequestHeaders.Clear();
                 var response = await _httpClient.GetAsync(fullPath);
                 var content = await response.Content.ReadAsStringAsync();
+                System.IO.File.WriteAllText("weather.tmp", content);
                 Weather = JsonConvert.DeserializeObject<WeatherResponse>(content);
-                LastRefresh = DateTime.Now;
             }
             catch (Exception ex)
             {
@@ -54,7 +49,21 @@ namespace ZeusAssistant.Model.Weather
         /// <returns>"{0} będą {1}, temperatura {2}, wilgotność {3}, zachmurzenie {4} procent"</returns>
         public async Task<string> GetForecastAsync (string City, DateTime date)
         {
-            await GetAsync(City);
+            var weatherTmpPath = "weather.tmp";
+            if (System.IO.File.Exists(weatherTmpPath))
+            {
+                var creationTime = System.IO.File.GetLastWriteTime(weatherTmpPath);
+                var timeFromCreation = DateTime.Now - creationTime;
+                if (timeFromCreation.Hours <=3 || !Utilities.CheckForInternetConnection())
+                {
+                    var serializedContent = System.IO.File.ReadAllText(weatherTmpPath);
+                    Weather = JsonConvert.DeserializeObject<WeatherResponse>(serializedContent);
+                }
+                else
+                    await GetAsync(City);
+            }
+            else
+                await GetAsync(City);
 
             if (Weather == null)
                 return "";

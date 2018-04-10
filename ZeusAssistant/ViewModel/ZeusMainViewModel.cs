@@ -14,7 +14,7 @@ namespace ZeusAssistant.ViewModel
 {
     class ZeusMainViewModel:INotifyPropertyChanged
     {
-        private SpeechMicrosoft _microsoftSpeech;
+        //private SpeechMicrosoft _microsoftSpeech;
         private SpeechWitAi _witAi;
         private VoiceRecorder _recorder;
         private Creditentials _credits;
@@ -25,7 +25,7 @@ namespace ZeusAssistant.ViewModel
 
         #region buttons
         public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
-        //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
+        public CommandBinding StopRecording { get { return new CommandBinding(async () => await DoTest(), () => true); } }
         #endregion
 
         #region events
@@ -45,8 +45,8 @@ namespace ZeusAssistant.ViewModel
                 _credits = new Creditentials();
                 _credits.Load();
                 HttpClient = new HttpClient();
-                _microsoftSpeech = new SpeechMicrosoft();
-                _microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
+                //_microsoftSpeech = new SpeechMicrosoft();
+                //_microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
                 _witAi = new SpeechWitAi(HttpClient,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
@@ -87,7 +87,9 @@ namespace ZeusAssistant.ViewModel
         #region functions
         public async Task RunSpeechRecognition()
         {
-            await _microsoftSpeech.Run();
+            //await _microsoftSpeech.Run();
+            await Task.Delay(100);
+            _microsoftSpeech_Recognized(this, "");
         }
 
         private async Task<string> DoActions(Model.Messages.Message action)
@@ -106,6 +108,13 @@ namespace ZeusAssistant.ViewModel
                 default:
                     return "";
             }
+        }
+
+        public async Task DoTest()
+        {
+            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, DateTime.Now, 1.0);
+            await DoActions(message);
+            await JobScheduler.RunProgram();
         }
 
         #endregion
