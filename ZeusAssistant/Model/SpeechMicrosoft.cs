@@ -18,6 +18,7 @@ namespace ZeusAssistant.Model
         private GrammarBuilder _grammarBuilder;
         private Grammar _grammar;
         private bool _stop;
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public SpeechMicrosoft()
         {
@@ -33,17 +34,25 @@ namespace ZeusAssistant.Model
 
         private void Init()
         {
-            _recognizer = new SpeechRecognitionEngine(_cultureInfo);
-            _recognizer.SetInputToDefaultAudioDevice();
-            _choices = new Choices();
-            _choices.Add("dupa");
-            _choices.Add("pimpuś");
-            _grammarBuilder = new GrammarBuilder();
-            _grammarBuilder.Append(_choices);
-            _grammarBuilder.Culture = _cultureInfo;
-            _grammar = new Grammar(_grammarBuilder);
-            _recognizer.LoadGrammar(_grammar);
-            _recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
+            try
+            {
+                _recognizer = new SpeechRecognitionEngine(_cultureInfo);
+                _recognizer.SetInputToDefaultAudioDevice();
+                _choices = new Choices();
+                _choices.Add("dupa");
+                _choices.Add("pimpuś");
+                _grammarBuilder = new GrammarBuilder();
+                _grammarBuilder.Append(_choices);
+                _grammarBuilder.Culture = _cultureInfo;
+                _grammar = new Grammar(_grammarBuilder);
+                _recognizer.LoadGrammar(_grammar);
+                _recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
+            }
+            catch (Exception ex)
+            {
+
+                logger.Error(ex, "Faiiled to load speach recognition engine");
+            }
         }
 
         public void OnSpeechRecognized(string message)
@@ -63,6 +72,7 @@ namespace ZeusAssistant.Model
 
         public async Task Run()
         {
+            if (_recognizer == null) return;
             _stop = false;
             await Task.Run(() =>
             {

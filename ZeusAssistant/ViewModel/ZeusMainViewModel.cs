@@ -112,8 +112,9 @@ namespace ZeusAssistant.ViewModel
 
         public async Task DoTest()
         {
-            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, DateTime.Now, 1.0);
-            await DoActions(message);
+            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, new DateTime(2018,04,18), 1.0);
+            var actionMessage = await DoActions(message);
+            TextToSpeech.Speak(actionMessage);
             await JobScheduler.RunProgram();
         }
 

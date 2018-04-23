@@ -11,17 +11,26 @@ namespace ZeusAssistant.Model
 {
     class JobScheduler
     {
-        public static async Task RunProgram()
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private NameValueCollection props;
+        private StdSchedulerFactory factory;
+        private IScheduler scheduler;
+
+        public JobScheduler()
+        {
+            // Grab the Scheduler instance from the Factory
+            props = new NameValueCollection
+                {
+                    { "quartz.serializer.type", "binary"}
+                };
+            factory = new StdSchedulerFactory(props);
+        }
+
+        public async Task Start()
         {
             try
-            {
-                // Grab the Scheduler instance from the Factory
-                NameValueCollection props = new NameValueCollection
-                {
-                    { "quartz.serializer.type", "binary" }
-                };
-                StdSchedulerFactory factory = new StdSchedulerFactory(props);
-                IScheduler scheduler = await factory.GetScheduler();
+            {   
+                scheduler = await factory.GetScheduler();
 
                 // and start it off
                 await scheduler.Start();
@@ -42,25 +51,33 @@ namespace ZeusAssistant.Model
 
                 // Tell quartz to schedule the job using our trigger
                 await scheduler.ScheduleJob(job, trigger);
-
-                // some sleep to show what's happening
-                await Task.Delay(TimeSpan.FromSeconds(60));
-
-                // and last shut down the scheduler when you are ready to close your program
+            }
+            catch (SchedulerException se)
+            {
+                logger.Error(se);
+            }
+        }
+        public async Task StopProgram()
+        {
+            try
+            {
+                if (scheduler == null) return;
                 await scheduler.Shutdown();
             }
             catch (SchedulerException se)
             {
-                Console.WriteLine(se);
+                logger.Error(se);
             }
         }
     }
 
     public class HelloJob : IJob
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public async Task Execute(IJobExecutionContext context)
         {
-            await Console.Out.WriteLineAsync("Greetings from HelloJob!");
+            TunePlayer.PlaySound();
+            logger.Info("Tada!");
         }
     }
     

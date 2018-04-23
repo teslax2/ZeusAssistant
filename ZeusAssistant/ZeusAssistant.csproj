@@ -149,12 +149,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\Scheduler.cs" />
+    <Compile Include="Model\JobScheduler.cs" />
     <Compile Include="Model\Test.cs" />
+    <Compile Include="Model\TextToSpeech.cs" />
     <Compile Include="Model\Utilities.cs" />
     <Compile Include="Model\WeatherApi.cs" />
     <Compile Include="Model\Creditentials.cs" />
-    <Compile Include="Model\JinglePlayer.cs" />
+    <Compile Include="Model\TunePlayer.cs" />
     <Compile Include="Model\Messages\Message.cs" />
     <Compile Include="Model\Messages\IntentEnum.cs" />
     <Compile Include="Model\Messages\MessageAlarm.cs" />
