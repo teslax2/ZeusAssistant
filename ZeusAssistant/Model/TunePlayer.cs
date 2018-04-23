@@ -19,7 +19,7 @@ namespace ZeusAssistant.Model
         {
             try
             {
-                using (var reader = new WaveFileReader("Alarm.wav"))
+                using (var reader = new WaveFileReader("Speech On.wav"))
                 using (var waveOut = new WaveOutEvent())
                 {
                     waveOut.Init(reader);
@@ -34,7 +34,7 @@ namespace ZeusAssistant.Model
         }
 
         /// <summary>
-        /// Plays sound asynchronously
+        /// Plays sound asynchronously - doesnt work!
         /// </summary>
         public static async Task PlaySoundAsync()
         {

@@ -150,6 +150,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\JobScheduler.cs" />
+    <Compile Include="Model\SpeechMicrosoft.cs" />
     <Compile Include="Model\Test.cs" />
     <Compile Include="Model\TextToSpeech.cs" />
     <Compile Include="Model\Utilities.cs" />
@@ -192,6 +193,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="credits.xxx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -210,6 +214,9 @@
     </Content>
     <Content Include="libmp3lame.64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Speech On.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

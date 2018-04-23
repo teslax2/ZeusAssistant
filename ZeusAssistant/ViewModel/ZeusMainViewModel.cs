@@ -14,11 +14,12 @@ namespace ZeusAssistant.ViewModel
 {
     class ZeusMainViewModel:INotifyPropertyChanged
     {
-        //private SpeechMicrosoft _microsoftSpeech;
+        private SpeechMicrosoft _microsoftSpeech;
         private SpeechWitAi _witAi;
         private VoiceRecorder _recorder;
         private Creditentials _credits;
         private WeatherApi _weatherApi;
+        private JobScheduler _jobScheduler;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public HttpClient HttpClient { get; set; }
@@ -45,8 +46,8 @@ namespace ZeusAssistant.ViewModel
                 _credits = new Creditentials();
                 _credits.Load();
                 HttpClient = new HttpClient();
-                //_microsoftSpeech = new SpeechMicrosoft();
-                //_microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
+                _microsoftSpeech = new SpeechMicrosoft();
+                _microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
                 _witAi = new SpeechWitAi(HttpClient,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
@@ -56,11 +57,14 @@ namespace ZeusAssistant.ViewModel
                 _weatherApi = new WeatherApi(HttpClient,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Path,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Token);
+                _jobScheduler = new JobScheduler();
             }
             catch (Exception ex)
             {
 
                 logger.Error(ex, "Failed to create ZeusMainViewModel");
+                System.Windows.MessageBox.Show("GoodBye, check logs");
+                App.Current.Shutdown();
             }
         }
 
@@ -87,9 +91,7 @@ namespace ZeusAssistant.ViewModel
         #region functions
         public async Task RunSpeechRecognition()
         {
-            //await _microsoftSpeech.Run();
-            await Task.Delay(100);
-            _microsoftSpeech_Recognized(this, "");
+            await _microsoftSpeech.Run();
         }
 
         private async Task<string> DoActions(Model.Messages.Message action)
@@ -98,7 +100,9 @@ namespace ZeusAssistant.ViewModel
             {
                 case Model.Messages.IntentEnum.Weather:
                     var weatherAction = action as Model.Messages.MessageWeather;
-                    return await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                    var response = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                    TextToSpeech.Speak(response);
+                    return response;
                 case Model.Messages.IntentEnum.Time:
                     return "";
                 case Model.Messages.IntentEnum.Alarm:
@@ -112,10 +116,10 @@ namespace ZeusAssistant.ViewModel
 
         public async Task DoTest()
         {
-            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, new DateTime(2018,04,18), 1.0);
+            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, new DateTime(2018,04,24), 1.0);
             var actionMessage = await DoActions(message);
             TextToSpeech.Speak(actionMessage);
-            await JobScheduler.RunProgram();
+            await _jobScheduler.Start("trigger1", false, 10);
         }
 
         #endregion

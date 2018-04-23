@@ -66,7 +66,7 @@ namespace ZeusAssistant.Model
         {
             Stop();
             System.Diagnostics.Debug.WriteLine("Recognized! {0}: {1}",e.Result.Text, e.Result.Confidence);
-            JinglePlayer.PlaySound();
+            TunePlayer.PlaySound();
             OnSpeechRecognized(e.Result.ToString());
         }
 
