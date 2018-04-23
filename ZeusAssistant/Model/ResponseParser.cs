@@ -68,7 +68,7 @@ namespace ZeusAssistant.Model
             }
         }
 
-        private static Message CreateMessage(string intent, double confidence, string location, double locationConfidence, DateTime time, double timeConfidence)
+        public static Message CreateMessage(string intent, double confidence, string location, double locationConfidence, DateTime time, double timeConfidence)
         {
             if (string.IsNullOrEmpty(intent) || confidence < 0.85)
                 return null;

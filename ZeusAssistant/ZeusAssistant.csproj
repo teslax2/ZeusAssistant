@@ -149,9 +149,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\JobScheduler.cs" />
+    <Compile Include="Model\Test.cs" />
+    <Compile Include="Model\TextToSpeech.cs" />
+    <Compile Include="Model\Utilities.cs" />
     <Compile Include="Model\WeatherApi.cs" />
     <Compile Include="Model\Creditentials.cs" />
-    <Compile Include="Model\JinglePlayer.cs" />
+    <Compile Include="Model\TunePlayer.cs" />
     <Compile Include="Model\Messages\Message.cs" />
     <Compile Include="Model\Messages\IntentEnum.cs" />
     <Compile Include="Model\Messages\MessageAlarm.cs" />
@@ -161,7 +165,6 @@
     <Compile Include="Model\ResponseParser.cs" />
     <Compile Include="Model\SpeechWitAi.cs" />
     <Compile Include="Model\CommandBinding.cs" />
-    <Compile Include="Model\SpeechMicrosoft.cs" />
     <Compile Include="Model\SilenceDetectedEventArgs.cs" />
     <Compile Include="Model\VoiceRecorder.cs" />
     <Compile Include="Model\VoiceRecorderEventArgs.cs" />
