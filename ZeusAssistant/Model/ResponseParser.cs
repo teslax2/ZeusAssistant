@@ -64,7 +64,7 @@ namespace ZeusAssistant.Model
             catch (Exception ex)
             {
                 logger.Error(ex.Message, "Parsing error");
-                return null;
+                throw new ApplicationException("Failed to parse", ex);
             }
         }
 

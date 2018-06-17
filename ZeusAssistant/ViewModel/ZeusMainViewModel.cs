@@ -25,13 +25,10 @@ namespace ZeusAssistant.ViewModel
         public HttpClient HttpClient { get; set; }
 
         #region buttons
-<<<<<<< HEAD
-        public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
-        public CommandBinding StopRecording { get { return new CommandBinding(async () => await DoTest(), () => true); } }
-=======
+
         public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); } }
         //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
->>>>>>> master4
+
         #endregion
 
         #region events
@@ -48,35 +45,37 @@ namespace ZeusAssistant.ViewModel
         {
             try
             {
+                //load creditentials
                 _credits = new Creditentials();
                 _credits.Load();
+                //client
                 HttpClient = new HttpClient();
+                //speech recognition
                 _microsoftSpeech = new SpeechMicrosoft();
                 _microsoftSpeech.Recognized += _microsoftSpeech_Recognized;
+                //witAi
                 _witAi = new SpeechWitAi(HttpClient,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Path,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.WitAi).First().Token);
+                //voice recorder
                 _recorder = new VoiceRecorder(0.05f, 1000);
                 _recorder.DataAvailable += Recorder_DataAvailable;
                 _recorder.RecordingStopped += async(s,e) => await Recorder_RecordingStopped(s,e);
+                //weather api
                 _weatherApi = new WeatherApi(HttpClient,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Path,
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Token);
+                //scheduler
                 _jobScheduler = new JobScheduler();
             }
             catch (Exception ex)
             {
-
-<<<<<<< HEAD
                 logger.Error(ex, "Failed to create ZeusMainViewModel");
                 System.Windows.MessageBox.Show("GoodBye, check logs");
                 App.Current.Shutdown();
-=======
-                logger.Error(ex.Message, "Failed to create ZeusMainViewModel");
->>>>>>> master4
             }
         }
-
+        //recorder stopped
         private async Task Recorder_RecordingStopped(object sender, EventArgs e)
         {
             var result = _witAi.StopPostChunked();
@@ -85,42 +84,36 @@ namespace ZeusAssistant.ViewModel
             logger.Info(result.MessageIntent.ToString());
             await DoActions(result);
          }
-
+        //start keyword recognition
+        public async Task RunSpeechRecognition()
+        {
+            await _microsoftSpeech.Run();
+        }
+        //recognized start keyword - fire recorder and wit ai
         private void _microsoftSpeech_Recognized(object sender, string e)
         {
             _witAi.StartPostChunked();
             _recorder.Start();
         }
-
+        //recorder data available
         private void Recorder_DataAvailable(object sender, VoiceRecorderEventArgs e)
         {
             _witAi.SendPostChunked(e.Data);
         }
-
         #region functions
-        public async Task RunSpeechRecognition()
-        {
-            await _microsoftSpeech.Run();
-        }
-
         private async Task DoActions(Model.Messages.Message action)
         {
             switch (action.MessageIntent)
             {
                 case Model.Messages.IntentEnum.Weather:
                     var weatherAction = action as Model.Messages.MessageWeather;
-<<<<<<< HEAD
-                    var response = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
-                    TextToSpeech.Speak(response);
-                    return response;
-=======
+
                     var weatherString = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
                     logger.Info(weatherString);
                     if (!string.IsNullOrEmpty(weatherString))
                         // _microsoftSpeech.Speak(weatherString);
                         ;
                     break;
->>>>>>> master4
                 case Model.Messages.IntentEnum.Time:
                     return;
                 case Model.Messages.IntentEnum.Alarm:
@@ -130,14 +123,6 @@ namespace ZeusAssistant.ViewModel
                 default:
                     return;
             }
-        }
-
-        public async Task DoTest()
-        {
-            var message = Test.CreateMessage("weather", 1.0, "cork", 1.0, new DateTime(2018,04,24), 1.0);
-            var actionMessage = await DoActions(message);
-            TextToSpeech.Speak(actionMessage);
-            await _jobScheduler.Start("trigger1", false, 10);
         }
 
         #endregion

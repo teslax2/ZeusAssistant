@@ -49,13 +49,7 @@ namespace ZeusAssistant.Model
                 _grammar = new Grammar(_grammarBuilder);
                 _recognizer.LoadGrammar(_grammar);
                 _recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
-<<<<<<< HEAD
-            }
-            catch (Exception ex)
-            {
 
-                logger.Error(ex, "Faiiled to load speach recognition engine");
-=======
                 //_synthesizer = new SpeechSynthesizer();
                 //_synthesizer.SelectVoiceByHints(VoiceGender.Female);
                 //_synthesizer.SetOutputToDefaultAudioDevice();
@@ -63,7 +57,6 @@ namespace ZeusAssistant.Model
             catch (Exception ex)
             {
                 logger.Error(ex.Message, "Microsoft speech engine error");
->>>>>>> master4
             }
         }
 
@@ -77,13 +70,8 @@ namespace ZeusAssistant.Model
         private void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             Stop();
-<<<<<<< HEAD
-            System.Diagnostics.Debug.WriteLine("Recognized! {0}: {1}",e.Result.Text, e.Result.Confidence);
-            TunePlayer.PlaySound();
-=======
             logger.Debug("Recognized! {0}: {1}", e.Result.Text, e.Result.Confidence);
-            JinglePlayer.PlaySound();
->>>>>>> master4
+            TunePlayer.PlaySound();
             OnSpeechRecognized(e.Result.ToString());
         }
 
