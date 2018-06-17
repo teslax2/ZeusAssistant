@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Speech.Recognition;
+//using System.Speech.Synthesis;
 using System.Globalization;
 using System.Threading;
 
@@ -12,6 +13,7 @@ namespace ZeusAssistant.Model
     class SpeechMicrosoft
     {
         public event EventHandler<string> Recognized;
+        //private SpeechSynthesizer _synthesizer;
         private SpeechRecognitionEngine _recognizer;
         private CultureInfo _cultureInfo;
         private Choices _choices;
@@ -47,11 +49,21 @@ namespace ZeusAssistant.Model
                 _grammar = new Grammar(_grammarBuilder);
                 _recognizer.LoadGrammar(_grammar);
                 _recognizer.SpeechRecognized += _recognizer_SpeechRecognized;
+<<<<<<< HEAD
             }
             catch (Exception ex)
             {
 
                 logger.Error(ex, "Faiiled to load speach recognition engine");
+=======
+                //_synthesizer = new SpeechSynthesizer();
+                //_synthesizer.SelectVoiceByHints(VoiceGender.Female);
+                //_synthesizer.SetOutputToDefaultAudioDevice();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, "Microsoft speech engine error");
+>>>>>>> master4
             }
         }
 
@@ -65,8 +77,13 @@ namespace ZeusAssistant.Model
         private void _recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             Stop();
+<<<<<<< HEAD
             System.Diagnostics.Debug.WriteLine("Recognized! {0}: {1}",e.Result.Text, e.Result.Confidence);
             TunePlayer.PlaySound();
+=======
+            logger.Debug("Recognized! {0}: {1}", e.Result.Text, e.Result.Confidence);
+            JinglePlayer.PlaySound();
+>>>>>>> master4
             OnSpeechRecognized(e.Result.ToString());
         }
 
@@ -76,7 +93,7 @@ namespace ZeusAssistant.Model
             _stop = false;
             await Task.Run(() =>
             {
-                System.Diagnostics.Debug.WriteLine("Started!");
+                logger.Debug("Started!");
                 while (!_stop)
                 {
                     _recognizer.Recognize();
@@ -87,6 +104,11 @@ namespace ZeusAssistant.Model
         public void Stop()
         {
             _stop = true;
+        }
+
+        public void Speak(string content)
+        {
+            //_synthesizer.SpeakAsync(content);
         }
     }
 }

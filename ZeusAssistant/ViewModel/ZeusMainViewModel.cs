@@ -25,8 +25,13 @@ namespace ZeusAssistant.ViewModel
         public HttpClient HttpClient { get; set; }
 
         #region buttons
+<<<<<<< HEAD
         public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); }}
         public CommandBinding StopRecording { get { return new CommandBinding(async () => await DoTest(), () => true); } }
+=======
+        public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); } }
+        //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
+>>>>>>> master4
         #endregion
 
         #region events
@@ -62,9 +67,13 @@ namespace ZeusAssistant.ViewModel
             catch (Exception ex)
             {
 
+<<<<<<< HEAD
                 logger.Error(ex, "Failed to create ZeusMainViewModel");
                 System.Windows.MessageBox.Show("GoodBye, check logs");
                 App.Current.Shutdown();
+=======
+                logger.Error(ex.Message, "Failed to create ZeusMainViewModel");
+>>>>>>> master4
             }
         }
 
@@ -94,23 +103,32 @@ namespace ZeusAssistant.ViewModel
             await _microsoftSpeech.Run();
         }
 
-        private async Task<string> DoActions(Model.Messages.Message action)
+        private async Task DoActions(Model.Messages.Message action)
         {
             switch (action.MessageIntent)
             {
                 case Model.Messages.IntentEnum.Weather:
                     var weatherAction = action as Model.Messages.MessageWeather;
+<<<<<<< HEAD
                     var response = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
                     TextToSpeech.Speak(response);
                     return response;
+=======
+                    var weatherString = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
+                    logger.Info(weatherString);
+                    if (!string.IsNullOrEmpty(weatherString))
+                        // _microsoftSpeech.Speak(weatherString);
+                        ;
+                    break;
+>>>>>>> master4
                 case Model.Messages.IntentEnum.Time:
-                    return "";
+                    return;
                 case Model.Messages.IntentEnum.Alarm:
-                    return "";
+                    return;
                 case Model.Messages.IntentEnum.Note:
-                    return "";
+                    return;
                 default:
-                    return "";
+                    return;
             }
         }
 
