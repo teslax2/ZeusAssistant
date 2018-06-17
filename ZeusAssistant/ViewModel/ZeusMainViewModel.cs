@@ -76,12 +76,13 @@ namespace ZeusAssistant.ViewModel
             }
         }
         //recorder stopped
+        //send wit Ai response to parser
         private async Task Recorder_RecordingStopped(object sender, EventArgs e)
         {
             var result = _witAi.StopPostChunked();
             if (result == null)
                 return;
-            logger.Info(result.MessageIntent.ToString());
+            //logger.Info(result.RawMessage);
             await DoActions(result);
          }
         //start keyword recognition

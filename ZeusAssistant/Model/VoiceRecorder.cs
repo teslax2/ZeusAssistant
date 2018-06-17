@@ -22,6 +22,8 @@ namespace ZeusAssistant.Model
         public DateTime RecordingStarted { get; set; }
         private DateTime silenceStartTime;
         private bool recording;
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
         private void OnDataAvailable(byte[] data, int lenght)
         {
             EventHandler<VoiceRecorderEventArgs> dataAvailable = DataAvailable;
@@ -101,10 +103,18 @@ namespace ZeusAssistant.Model
         private void _wave_RecordingStopped(object sender, StoppedEventArgs e)
         {
             OnRecordingStopped();
-            if (_wave != null)
-                _wave.Dispose();
-            if (_lameStream != null)
-                _lameWriter.Dispose();
+            try
+            {
+               // if (_wave != null)
+               //     _wave.Dispose();
+              //  if (_lameStream != null)
+                //    _lameWriter.Dispose();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex,"Failed to dispose wave or lame writer");
+            }
+
 
         }
 

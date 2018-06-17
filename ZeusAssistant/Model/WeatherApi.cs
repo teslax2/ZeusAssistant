@@ -14,8 +14,8 @@ namespace ZeusAssistant.Model.Weather
         public TimeSpan TimeSinceLastRefresh { get { return DateTime.Now - LastRefresh; } }
         private HttpClient _httpClient;
         public WeatherResponse Weather { get; set; }
-        private string _path;
-        private string _token;
+        private readonly string  _path;
+        private readonly string _token;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         //http://api.openweathermap.org/data/2.5/forecast?q=Cork&lang=pl&units=metric&APPID=
@@ -32,7 +32,7 @@ namespace ZeusAssistant.Model.Weather
         /// </summary>
         /// <param name="City"></param>
         /// <returns></returns>
-        private async Task GetAsync(string City)
+        private async Task<WeatherResponse> GetAsync(string City)
         {
             try
             {
@@ -55,11 +55,12 @@ namespace ZeusAssistant.Model.Weather
                     Weather = JsonConvert.DeserializeObject<WeatherResponse>(content);
                     LastRefresh = DateTime.Now;
                 }
-
+                return Weather;
             }
             catch (Exception ex)
             {
                 logger.Error(ex.Message, "Failed to get weather");
+                return null;
             }
         }
         /// <summary>
@@ -70,15 +71,15 @@ namespace ZeusAssistant.Model.Weather
         /// <returns>"{0} będą {1}, temperatura {2}, wilgotność {3}, zachmurzenie {4} procent"</returns>
         public async Task<string> GetForecastAsync(string City, DateTime date)
         {
-            await GetAsync(City);
+            var _weather = await GetAsync(City);
 
-            if (Weather == null)
+            if (_weather == null)
                 return "";
             int hour = 0;
             if (date.Hour == 0) hour = 12;
             else hour = date.Hour;
 
-            var forecast = Weather.Forecast.Where(x => x.DtTxt.Day == date.Day && x.DtTxt.Hour >= hour).FirstOrDefault();
+            var forecast = _weather.Forecast.Where(x => x.DtTxt.Day == date.Day && x.DtTxt.Hour >= hour).FirstOrDefault();
             var forecastString = string.Format("{0} będzie {1}, temperatura {2}, wilgotność {3}, zachmurzenie {4} procent",
                 GetDay(date), forecast.Weather[0].Description, forecast.Main.Temp, forecast.Main.Humidity, forecast.Clouds.All);
             logger.Info(forecastString);
