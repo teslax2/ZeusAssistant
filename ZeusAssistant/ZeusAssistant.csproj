@@ -149,6 +149,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\GoogleCalendar.cs" />
+    <Compile Include="Model\GoogleTranslator.cs" />
     <Compile Include="Model\JobScheduler.cs" />
     <Compile Include="Model\Test.cs" />
     <Compile Include="Model\TextToSpeech.cs" />
