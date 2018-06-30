@@ -12,5 +12,6 @@ namespace ZeusAssistant.Model.Messages
         Time,
         Alarm,
         Note,
+        Translate,
     }
 }

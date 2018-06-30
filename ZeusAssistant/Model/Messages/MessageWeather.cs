@@ -23,5 +23,9 @@ namespace ZeusAssistant.Model.Messages
             When = when;
             WhenConfidence = whenConfidence;
         }
+        public override string ToString()
+        {
+            return String.Format("Weather in {0} at {1}", Location, When.ToShortTimeString());
+        }
     }
 }

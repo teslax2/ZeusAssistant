@@ -19,11 +19,13 @@ namespace ZeusAssistant.Model.Messages
             MessageIntent = intent;
             Confidence = confidence;
             Created = DateTime.Now;
+            RawMessage = "";
+            Note = "";
         }
 
         public override string ToString()
         {
-            return MessageIntent.ToString() + Environment.NewLine + Note;
+            return MessageIntent.ToString() + " " + Note;
         }
     }
 

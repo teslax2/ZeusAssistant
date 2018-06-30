@@ -36,14 +36,21 @@ namespace ZeusAssistant.Model.Weather
         {
             try
             {
-                if (TimeSinceLastRefresh.Hours < 1 || true)
+
+                if (TimeSinceLastRefresh.Hours < 1 && System.IO.File.Exists("weather.tmp"))
                 {
-                    if (System.IO.File.Exists("weather.tmp"))
+                    String weatherSaved = "";
+                    using (var file = new System.IO.StreamReader("weather.tmp"))
                     {
-                        var weatherSaved = System.IO.File.ReadAllText("weather.tmp", Encoding.UTF8);
-                        if (!string.IsNullOrEmpty(weatherSaved))
-                            Weather = JsonConvert.DeserializeObject<WeatherResponse>(weatherSaved);
+                        weatherSaved = await file.ReadToEndAsync();
                     }
+                    if (!string.IsNullOrEmpty(weatherSaved))
+                    {
+                        Task t = Task.Run(() => { Weather = JsonConvert.DeserializeObject<WeatherResponse>(weatherSaved); });
+                        t.Wait();
+                    }
+                    else
+                        throw new ApplicationException("Failed to read content of the weather.tmp");
                 }
                 else
                 {
@@ -51,8 +58,12 @@ namespace ZeusAssistant.Model.Weather
                     _httpClient.DefaultRequestHeaders.Clear();
                     var response = await _httpClient.GetAsync(fullPath);
                     var content = await response.Content.ReadAsStringAsync();
-                    System.IO.File.WriteAllText("weather.tmp", content, Encoding.UTF8);
-                    Weather = JsonConvert.DeserializeObject<WeatherResponse>(content);
+                    using (var file = new System.IO.StreamWriter("weather.tmp"))
+                    {
+                        await file.WriteAsync(content);
+                        Task t = Task.Run(() => { Weather = JsonConvert.DeserializeObject<WeatherResponse>(content); });
+                        t.Wait();
+                    }
                     LastRefresh = DateTime.Now;
                 }
                 return Weather;
@@ -72,8 +83,8 @@ namespace ZeusAssistant.Model.Weather
         public async Task<string> GetForecastAsync(string City, DateTime date)
         {
             var _weather = await GetAsync(City);
-
-            if (_weather == null)
+            
+            if (_weather.City == null)
                 return "";
             int hour = 0;
             if (date.Hour == 0) hour = 12;

@@ -58,7 +58,7 @@ namespace ZeusAssistant.Model
                     TimeConfidence = 2;
                 }
 
-                Message = CreateMessage(Intent, Confidence, Location, LocationConfidence, Time.DateTime, TimeConfidence);
+                Message = CreateMessage(Intent, Confidence, Location, LocationConfidence, Time.DateTime, TimeConfidence,"");
                 return Message;
             }
             catch (Exception ex)
@@ -68,7 +68,7 @@ namespace ZeusAssistant.Model
             }
         }
 
-        public static Message CreateMessage(string intent, double confidence, string location, double locationConfidence, DateTime time, double timeConfidence)
+        public static Message CreateMessage(string intent, double confidence, string location, double locationConfidence, DateTime time, double timeConfidence, string phraseToTranslate)
         {
             if (string.IsNullOrEmpty(intent) || confidence < 0.85)
                 return null;
@@ -83,6 +83,8 @@ namespace ZeusAssistant.Model
                     return new MessageAlarm(IntentEnum.Alarm, confidence,time,timeConfidence);
                 case "note":
                     return new MessageNote(IntentEnum.Note, confidence);
+                case "translate":
+                    return new MessageTranslate(IntentEnum.Translate, confidence,phraseToTranslate);
                 default:
                     return null;
             }

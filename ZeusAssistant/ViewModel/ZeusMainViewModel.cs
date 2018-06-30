@@ -20,6 +20,7 @@ namespace ZeusAssistant.ViewModel
         private Creditentials _credits;
         private WeatherApi _weatherApi;
         private JobScheduler _jobScheduler;
+        private GoogleTranslator _googleTranslator;
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public HttpClient HttpClient { get; set; }
@@ -27,7 +28,8 @@ namespace ZeusAssistant.ViewModel
         #region buttons
 
         public CommandBinding StartRecording { get { return new CommandBinding(async () => await RunSpeechRecognition(), () => true); } }
-        //public CommandBinding StopRecording { get { return new CommandBinding(() => , () => true); } }
+        public CommandBinding StopRecording { get { return new CommandBinding(async () => await BypassVoiceRecognition(), () => true); } }
+
 
         #endregion
 
@@ -67,6 +69,8 @@ namespace ZeusAssistant.ViewModel
                     _credits.Credits.Where((x) => x.Provider == ApiProvider.OpenWeatherMap).First().Token);
                 //scheduler
                 _jobScheduler = new JobScheduler();
+                //translator
+                _googleTranslator = new GoogleTranslator(HttpClient);
             }
             catch (Exception ex)
             {
@@ -112,18 +116,29 @@ namespace ZeusAssistant.ViewModel
                     var weatherString = await _weatherApi.GetForecastAsync(weatherAction.Location, weatherAction.When);
                     logger.Info(weatherString);
                     if (!string.IsNullOrEmpty(weatherString))
+                        logger.Debug("");
                         // _microsoftSpeech.Speak(weatherString);
-                        ;
-                    break;
+                        return;
                 case Model.Messages.IntentEnum.Time:
                     return;
                 case Model.Messages.IntentEnum.Alarm:
                     return;
                 case Model.Messages.IntentEnum.Note:
                     return;
+                case Model.Messages.IntentEnum.Translate:
+                    var translation = await GoogleTranslator.TranslateAync(HttpClient,"jak sie masz", "pl", "en");
+                    logger.Debug(translation);
+                    return;
                 default:
                     return;
             }
+        }
+
+        private async Task BypassVoiceRecognition()
+        {
+            var message = Test.CreateMessage("translate", 1.0, "Cork", 1.0, DateTime.Now, 1.0,"jak sie masz?");
+            logger.Debug(message.ToString());
+            await DoActions(message);
         }
 
         #endregion
