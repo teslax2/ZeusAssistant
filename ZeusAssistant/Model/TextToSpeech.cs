@@ -7,7 +7,7 @@ using System.Speech.Synthesis;
 
 namespace ZeusAssistant.Model
 {
-    class TextToSpeech
+    public class TextToSpeech
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         public static void Speak(string sentence)
@@ -22,7 +22,8 @@ namespace ZeusAssistant.Model
                 {
                     tts.SelectVoice(voices[0].VoiceInfo.Name);
                 }
-                tts.SpeakAsync(sentence);
+                Task t = Task.Run(()=> { tts.Speak(sentence); });
+                t.Wait();    
             }
             catch (Exception ex)
             {

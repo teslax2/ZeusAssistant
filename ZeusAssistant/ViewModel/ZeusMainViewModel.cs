@@ -126,8 +126,9 @@ namespace ZeusAssistant.ViewModel
                 case Model.Messages.IntentEnum.Note:
                     return;
                 case Model.Messages.IntentEnum.Translate:
-                    var translation = await GoogleTranslator.TranslateAync(HttpClient,"jak sie masz", "pl", "en");
+                    var translation = await _googleTranslator.TranslateAsync("jak sie masz", "pl", "en");
                     logger.Debug(translation);
+                    TextToSpeech.Speak(translation);
                     return;
                 default:
                     return;

@@ -20,42 +20,20 @@ namespace ZeusAssistant.Model
         {
             _client = client;
         }
-        public static async Task<string> TranslateAync(HttpClient client, string phrase, string fromLang, string toLang)
-        {
-            if (client == null)
-            {
-                logger.Error("Client is null");
-                return "";
-            }
-            try
-            {
-                client.DefaultRequestHeaders.Clear();
-                var url = await client.GetAsync(GetPath(phrase, fromLang, toLang));
-                var content = await url.Content.ReadAsStringAsync();
-                var response = JObject.Parse(content);
-                var textResponse = (string)response[0][0][0];
-                return textResponse;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Failed to get translation");
-                return "";
-            }
-        }
 
         public async Task<string> TranslateAsync(string phrase, string fromLang, string toLang)
         {
             if (_client == null)
             {
-                logger.Error("Client is null");
-                return "";
+                logger.Error("HttpClient is null");
+                _client = new HttpClient();
             }
             try
             {
                 _client.DefaultRequestHeaders.Clear();
                 var url = await _client.GetAsync(GetPath(phrase, fromLang, toLang));
                 var content = await url.Content.ReadAsStringAsync();
-                var response = JObject.Parse(content);
+                var response = JArray.Parse(content);
                 var textResponse = (string)response[0][0][0];
                 return textResponse;
             }

@@ -28,6 +28,7 @@ namespace ZeusAssistant.Model
             catch (Exception ex)
             {
                 logger.Error(ex.Message, "Couldnt load creditentials");
+                throw;
             }
         }
 

@@ -64,7 +64,8 @@ namespace ZeusAssistant.Model
             catch (Exception ex)
             {
                 logger.Error(ex.Message, "Parsing error");
-                throw new ApplicationException("Failed to parse", ex);
+                logger.Error("Error caused by this text:  " + content);
+                throw new ResponseParserException("Failed to parse",ex);
             }
         }
 
@@ -83,8 +84,8 @@ namespace ZeusAssistant.Model
                     return new MessageAlarm(IntentEnum.Alarm, confidence,time,timeConfidence);
                 case "note":
                     return new MessageNote(IntentEnum.Note, confidence);
-                case "translate":
-                    return new MessageTranslate(IntentEnum.Translate, confidence,phraseToTranslate);
+                case "phrase_to_translate":
+                    return new MessageTranslate(IntentEnum.Translate, confidence, phraseToTranslate);
                 default:
                     return null;
             }

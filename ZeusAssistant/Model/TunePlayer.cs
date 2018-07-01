@@ -40,24 +40,17 @@ namespace ZeusAssistant.Model
         {
             try
             {
-                int delay = 0;
-                var task1 = new Task(() => 
+                using (var reader = new WaveFileReader("Alarm.wav"))
+                using (var waveOut = new WaveOutEvent())
                 {
-                    lock (locker)
+                    var t = Task.Run(() =>
                     {
-                        using (var reader = new WaveFileReader("Alarm.wav"))
-                        using (var waveOut = new WaveOutEvent())
-                        {
-                            waveOut.Init(reader);
-                            waveOut.Play();
-                            delay = 1000;
-                            logger.Info("plays inside");
-                        }
-                    }
-
-                });
-                task1.Start();
-                await Task.Delay(delay);
+                        waveOut.Init(reader);
+                        waveOut.Play();
+                    });
+                    t.Wait(1000);
+                    await t;
+                }
             }
             catch (Exception ex)
             {
